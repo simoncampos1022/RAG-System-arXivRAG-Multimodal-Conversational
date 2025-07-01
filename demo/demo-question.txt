@@ -1,0 +1,5 @@
+1. How does the Transformer architecture operate without using recurrence or convolution?
+2. Why did the authors choose Scaled Dot-Product Attention over other attention mechanisms like additive attention?
+3. How does the Transformer perform in terms of BLEU scores on the WMT 2014 English-German and English-French translation tasks compared to previous models?
+4. How are positional encodings implemented in the Transformer, and why did the authors opt for sinusoidal functions over learned embeddings?
+5. What are the computational advantages of self-attention layers compared to recurrent and convolutional layers in terms of complexity, parallelization, and path length?

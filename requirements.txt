@@ -1,0 +1,25 @@
+# Core dependencies
+python-dotenv
+
+# Hugging Face
+huggingface-hub
+sentence-transformers
+
+# Vector databases
+chromadb
+
+# LangChain ecosystem
+langchain
+langchain-community
+langchain-openai
+langchain-groq
+langchain-google-genai
+
+# Document processing
+unstructured[pdf]
+
+# Additional requirements for the web application
+fastapi
+uvicorn[standard]
+python-multipart
+beautifulsoup4
