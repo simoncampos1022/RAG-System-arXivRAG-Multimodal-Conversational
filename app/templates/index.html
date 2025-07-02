@@ -57,7 +57,10 @@
                 </div>
                 <div class="processing-controls">
                     <button id="analyze-btn" class="btn primary-btn" disabled>Analyze Documents</button>
-                    <div class="progress-indicator">
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
                         <span id="progress-status">Ready</span>
                     </div>
                 </div>
@@ -91,6 +94,9 @@
             </div>
         </div>
     </div>
+    
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
     
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="/static/js/main.js"></script>
