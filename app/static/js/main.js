@@ -49,11 +49,14 @@ async function saveConfiguration() {
     const temperature = parseFloat(temperatureSlider.value);
 
     if (!apiKey) {
-        showError('Please enter a valid API key');
+        showToast('Please enter a valid API key', 'error');
         return;
     }
 
     try {
+        saveConfigBtn.disabled = true;
+        saveConfigBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Configuring...';
+        
         const formData = new FormData();
         formData.append('api_key', apiKey);
         formData.append('model', model);
@@ -67,14 +70,17 @@ async function saveConfiguration() {
         const data = await response.json();
 
         if (response.ok) {
-            showSuccess('Configuration saved successfully');
+            showToast(`Model ${model} successfully initialized!`, 'success');
             appState.configured = true;
             updateButtonStates();
         } else {
-            showError(data.detail || 'Failed to save configuration');
+            showToast(data.detail || 'Failed to save configuration', 'error');
         }
     } catch (error) {
-        showError('Error saving configuration: ' + error.message);
+        showToast('Error saving configuration: ' + error.message, 'error');
+    } finally {
+        saveConfigBtn.disabled = false;
+        saveConfigBtn.innerHTML = 'Save Configuration';
     }
 }
 
@@ -122,7 +128,7 @@ function handleFiles(files) {
     const pdfFiles = Array.from(files).filter(file => file.type === 'application/pdf');
     
     if (pdfFiles.length === 0) {
-        showError('Please select PDF files only');
+        showToast('Please select PDF files only', 'error');
         return;
     }
 
@@ -132,6 +138,12 @@ function handleFiles(files) {
 
 async function uploadFiles(files) {
     try {
+        // Show upload starting toast
+        showToast(`Uploading ${files.length} file(s)...`, 'info');
+        
+        // Update progress bar to show upload starting
+        updateProgressBar(5, 'Uploading files...');
+        
         const formData = new FormData();
         files.forEach(file => {
             formData.append('files', file);
@@ -145,14 +157,19 @@ async function uploadFiles(files) {
         const data = await response.json();
 
         if (response.ok) {
-            showSuccess(`Successfully uploaded ${files.length} files`);
+            showToast(`Successfully uploaded ${files.length} file(s)`, 'success');
             updateFileList(data.files);
             analyzeBtn.disabled = false;
+            
+            // Update progress bar to show upload complete
+            updateProgressBar(10, 'Files uploaded. Ready for analysis.');
         } else {
-            showError(data.detail || 'Failed to upload files');
+            showToast(data.detail || 'Failed to upload files', 'error');
+            updateProgressBar(0, 'Upload failed');
         }
     } catch (error) {
-        showError('Error uploading files: ' + error.message);
+        showToast('Error uploading files: ' + error.message, 'error');
+        updateProgressBar(0, 'Upload failed');
     }
 }
 
@@ -196,6 +213,12 @@ function removeFile(fileName) {
 
 async function analyzeDocuments() {
     try {
+        analyzeBtn.disabled = true;
+        analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
+        
+        // Reset progress bar
+        updateProgressBar(0, 'Starting analysis...');
+        
         const response = await fetch('/api/analyze', {
             method: 'POST'
         });
@@ -203,18 +226,31 @@ async function analyzeDocuments() {
         const data = await response.json();
 
         if (response.ok) {
-            showSuccess('Document analysis started');
+            showToast('Document analysis started', 'info');
             appState.processingStatus = 'processing';
-            progressStatus.textContent = 'Processing...';
             
             // Start polling for status updates
             startStatusPolling();
         } else {
-            showError(data.detail || 'Failed to analyze documents');
+            showToast(data.detail || 'Failed to analyze documents', 'error');
+            updateProgressBar(0, 'Analysis failed');
+            analyzeBtn.disabled = false;
+            analyzeBtn.innerHTML = 'Analyze Documents';
         }
     } catch (error) {
-        showError('Error analyzing documents: ' + error.message);
+        showToast('Error analyzing documents: ' + error.message, 'error');
+        updateProgressBar(0, 'Analysis failed');
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerHTML = 'Analyze Documents';
     }
+}
+
+function updateProgressBar(percent, statusText) {
+    const progressFill = document.querySelector('.progress-fill');
+    const progressStatus = document.getElementById('progress-status');
+    
+    progressFill.style.width = `${percent}%`;
+    progressStatus.textContent = statusText;
 }
 
 function startStatusPolling() {
@@ -222,6 +258,19 @@ function startStatusPolling() {
     if (appState.pollingInterval) {
         clearInterval(appState.pollingInterval);
     }
+
+    let progressPercent = 10; // Start at 10%
+    const progressStages = [
+        { percent: 10, text: 'Starting analysis...' },
+        { percent: 25, text: 'Partitioning documents...' },
+        { percent: 40, text: 'Extracting text, tables, and images...' },
+        { percent: 60, text: 'Summarizing content...' },
+        { percent: 80, text: 'Creating embeddings...' }
+    ];
+    let currentStage = 0;
+    
+    // Initial progress update
+    updateProgressBar(progressStages[0].percent, progressStages[0].text);
 
     // Start polling
     appState.pollingInterval = setInterval(async () => {
@@ -232,13 +281,26 @@ function startStatusPolling() {
             appState.processingStatus = data.status;
             
             if (data.status === 'processing') {
-                progressStatus.textContent = 'Processing documents...';
+                // Advance to next stage of progress bar for visual feedback
+                if (currentStage < progressStages.length - 1) {
+                    currentStage++;
+                    updateProgressBar(
+                        progressStages[currentStage].percent, 
+                        progressStages[currentStage].text
+                    );
+                }
             } else if (data.status === 'complete') {
-                progressStatus.textContent = 'Analysis complete';
+                updateProgressBar(100, 'Analysis complete!');
                 generateBtn.disabled = false;
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = 'Analyze Documents';
+                showToast('Document analysis complete!', 'success');
                 clearInterval(appState.pollingInterval);
             } else if (data.status === 'error') {
-                progressStatus.textContent = 'Error during processing';
+                updateProgressBar(0, 'Error during processing');
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = 'Analyze Documents';
+                showToast('Error during document processing', 'error');
                 clearInterval(appState.pollingInterval);
             }
         } catch (error) {
@@ -256,12 +318,16 @@ async function generateAnswer() {
     const query = queryInput.value.trim();
     
     if (!query) {
-        showError('Please enter a query');
+        showToast('Please enter a query', 'error');
         return;
     }
 
     try {
-        answerContent.innerHTML = '<p>Generating answer...</p>';
+        // Disable button and show loading state
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+        
+        answerContent.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Generating answer...</p>';
         showTab('answer');
 
         const formData = new FormData();
@@ -277,13 +343,18 @@ async function generateAnswer() {
         if (response.ok) {
             displayAnswer(data);
             displayCitations(data);
+            showToast('Answer generated successfully', 'success');
         } else {
-            showError(data.detail || 'Failed to generate answer');
+            showToast(data.detail || 'Failed to generate answer', 'error');
             answerContent.innerHTML = '<p>Error generating answer. Please try again.</p>';
         }
     } catch (error) {
-        showError('Error generating answer: ' + error.message);
+        showToast('Error generating answer: ' + error.message, 'error');
         answerContent.innerHTML = '<p>Error generating answer. Please try again.</p>';
+    } finally {
+        // Reset button state
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = 'Generate Answer';
     }
 }
 
@@ -383,12 +454,57 @@ function updateButtonStates() {
     generateBtn.disabled = appState.processingStatus !== 'complete';
 }
 
+// Toast notification system
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    
+    // Configure toast type & icon
+    let iconClass = '';
+    toast.className = `toast toast-${type}`;
+    
+    switch (type) {
+        case 'success':
+            iconClass = 'fa-check-circle';
+            break;
+        case 'error':
+            iconClass = 'fa-exclamation-circle';
+            break;
+        case 'info':
+        default:
+            iconClass = 'fa-info-circle';
+            break;
+    }
+    
+    // Create toast content
+    toast.innerHTML = `
+        <i class="fas ${iconClass} toast-icon"></i>
+        <div class="toast-message">${message}</div>
+        <button class="toast-close"><i class="fas fa-times"></i></button>
+    `;
+    
+    // Add to container
+    toastContainer.appendChild(toast);
+    
+    // Add close button functionality
+    toast.querySelector('.toast-close').addEventListener('click', () => {
+        toast.remove();
+    });
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.remove();
+        }
+    }, 3000);
+}
+
 function showError(message) {
-    alert(message); // In a real app, use a better notification system
+    showToast(message, 'error');
 }
 
 function showSuccess(message) {
-    console.log(message); // In a real app, use a better notification system
+    showToast(message, 'success');
 }
 
 // Initialize the application
