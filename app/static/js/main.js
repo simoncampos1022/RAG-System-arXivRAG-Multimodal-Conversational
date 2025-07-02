@@ -346,11 +346,11 @@ async function generateAnswer() {
             showToast('Answer generated successfully', 'success');
         } else {
             showToast(data.detail || 'Failed to generate answer', 'error');
-            answerContent.innerHTML = '<p>Error generating answer. Please try again.</p>';
+            answerContent.innerHTML = '<p>Error generating answer, may be because of rate limits. Please try again.</p>';
         }
     } catch (error) {
         showToast('Error generating answer: ' + error.message, 'error');
-        answerContent.innerHTML = '<p>Error generating answer. Please try again.</p>';
+        answerContent.innerHTML = '<p>Error generating answer, may be because of rate limits. Please try again.</p>';
     } finally {
         // Reset button state
         generateBtn.disabled = false;

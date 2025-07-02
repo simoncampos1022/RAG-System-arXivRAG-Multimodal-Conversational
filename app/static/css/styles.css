@@ -83,6 +83,7 @@ body {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     grid-gap: 1rem;
+    grid-auto-rows: minmax(100px, auto);
 }
 
 .config-item {
@@ -211,6 +212,8 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-top: 1rem;
+    /* Add space between items in this section */
+    gap: 1rem;
 }
 
 .progress-indicator {
@@ -431,7 +434,7 @@ body {
 }
 
 .progress-bar {
-    height: 8px;
+    height: 18px;
     background-color: #e9ecef;
     border-radius: 4px;
     overflow: hidden;
