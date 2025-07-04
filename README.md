@@ -2,6 +2,8 @@
 
 A fully functional Multi-modal Retrieval-Augmented Generation (RAG) application powered by LangChain and Gemini API, enabling seamless interaction and intelligent querying over PDF documents with text, tables, and images.
 
+
+
 ## Features
 
 - **PDF Document Processing**: Upload and analyze PDFs with automatic partitioning into text, tables, and images
@@ -62,13 +64,3 @@ A fully functional Multi-modal Retrieval-Augmented Generation (RAG) application 
 - **Document Processing**: Unstructured library for PDF partitioning
 - **Embedding & Retrieval**: LangChain's MultiVectorRetriever with Hugging Face embeddings
 - **Language Model**: Google's Gemini API for summarization and response generation
-
-## Demo Files
-
-The repository includes demo files in the `demo/` directory:
-- `demo-pdf.pdf`: A sample PDF for testing
-- `demo-question.txt`: Sample questions to ask about the PDF
-
-## Notebook
-
-The `notebooks/cookbook.ipynb` contains the original development code and can be used to explore the RAG pipeline components in an interactive environment.
