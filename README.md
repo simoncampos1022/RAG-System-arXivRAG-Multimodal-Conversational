@@ -2,7 +2,7 @@
 
 A fully functional Multi-modal Retrieval-Augmented Generation (RAG) application powered by LangChain and Gemini API, enabling seamless interaction and intelligent querying over PDF documents with text, tables, and images.
 
-
+![Demo Image](demo/demo-1.png)
 
 ## Features
 
