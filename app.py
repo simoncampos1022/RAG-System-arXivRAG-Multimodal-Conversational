@@ -3,10 +3,7 @@
 import argparse
 import logging
 from pathlib import Path
-from typing  import Dict, Any, List
-
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
+from typing import Dict, Any, List
 
 from src.data_extraction.extractor  import extract_from_pdf, separate_content_types
 from src.processors.text_processor  import TextProcessor

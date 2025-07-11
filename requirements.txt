@@ -1,6 +1,7 @@
 # Core dependencies
 python-dotenv
 protobuf==3.20.3
+python-dateutil
 
 # PDF processing
 unstructured[pdf]
@@ -13,16 +14,18 @@ langchain-google-genai
 langchain-chroma
 langchain-huggingface
 
+# Vector database
+chromadb
+
 # HuggingFace
 huggingface-hub
 sentence-transformers
 torch
 
-# VectorDB
-chromadb
-
-# Application
+# Application server (FastAPI)
 fastapi
-python-multipart
 uvicorn[standard]
-beautifulsoup4
+python-multipart
+
+# External data sources
+arxiv
