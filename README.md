@@ -1,66 +1,112 @@
-# DocChat: A Multimodal RAG Application
+# DocChat - Multimodal RAG Application
 
-A fully functional Multi-modal Retrieval-Augmented Generation (RAG) application powered by LangChain and Gemini API, enabling seamless interaction and intelligent querying over PDF documents with text, tables, and images.
+A modular and extensible multimodal Retrieval-Augmented Generation (RAG) application for document querying.
 
-![Demo Image](demo/demo-1.png)
+## Overview
 
-## Features
+DocChat is a RAG application that can:
 
-- **PDF Document Processing**: Upload and analyze PDFs with automatic partitioning into text, tables, and images
-- **Multimodal RAG Pipeline**: Process and retrieve information from various content types
-- **User-configurable Model Settings**: Choose from different Gemini models and set parameters
-- **Interactive UI**: Clean and intuitive interface with a 2x2 grid layout
-- **Citation Display**: See exactly which parts of your documents were used to generate answers
+1. Extract text, tables, and images from PDF documents
+2. Process and summarize each type of content using LLM chains
+3. Store the content and summaries in a vector database for retrieval
+4. Answer questions based on the retrieved documents
 
-## Requirements
+## Project Structure
 
-- Python 3.9+
-- Google Gemini API Key
-- Dependencies listed in `requirements.txt`
+```
+DocChat-MultimodalRAG-Application/
+├── app.py                    # Main application class
+├── demo.py                   # Demo script
+├── config.py                 # Configuration settings
+├── requirements.txt
+├── assets/                   # Project assets
+├── data/                     # PDF documents
+├── demo/                     # Demo files
+└── src/                      # Source code
+    ├── data_extraction/      # PDF extraction components
+    │   ├── extractor.py
+    ├── processors/           # Content processors
+    │   ├── text_processor.py
+    │   ├── table_processor.py
+    │   ├── image_processor.py
+    │   ├── prompts.py
+    ├── storage/              # Vector storage
+    │   ├── vectorstore.py
+    └── rag/                  # RAG pipeline
+        ├── pipeline.py
+```
 
 ## Installation
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/DocChat-Multimodal-RAG-Application.git
-   cd DocChat-Multimodal-RAG-Application
+   git clone <repository-url>
+   cd DocChat-MultimodalRAG-Application
    ```
 
-2. Install the required dependencies:
+2. Install the required packages:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Run the application:
-   ```bash
-   python run.py
+3. Create a `.env` file in the root directory with your API keys:
    ```
-
-4. Open your browser and navigate to `http://localhost:8000`
+   HF_TOKEN=your_huggingface_token
+   GOOGLE_API_KEY=your_google_api_key
+   ```
 
 ## Usage
 
-1. **Configure the RAG System**:
-   - Enter your Gemini API key
-   - Select a model from the available options
-   - Set the temperature parameter
+### Command Line
 
-2. **Upload PDF Files**:
-   - Drag and drop or browse to select PDF files
-   - Click "Upload Files" to submit them
+Process a document and query it:
 
-3. **Analyze Documents**:
-   - Click "Analyze Documents" to process the uploaded PDFs
-   - Wait for the processing to complete
+```bash
+python app.py --pdf data/OpenAgentSafety.pdf --query "What limitations of rule-based evaluators are addressed by LLM-as-Judge?"
+```
 
-4. **Ask Questions**:
-   - Type your question in the query box
-   - View the answer and supporting citations
+Reset the vector store:
 
-## Architecture
+```bash
+python app.py --reset
+```
 
-- **Backend**: FastAPI with Uvicorn server
-- **Frontend**: HTML, CSS, and JavaScript
-- **Document Processing**: Unstructured library for PDF partitioning
-- **Embedding & Retrieval**: LangChain's MultiVectorRetriever with Hugging Face embeddings
-- **Language Model**: Google's Gemini API for summarization and response generation
+### As a Module
+
+```python
+from app import DocChatApp
+
+# Initialize the application
+app = DocChatApp()
+
+# Process a document
+processed_content = app.process_document('path/to/document.pdf')
+
+# Query the document
+response = app.query("What is the main topic of this document?")
+print(response['response'])
+```
+
+### Run the Demo
+
+```bash
+python demo.py
+```
+
+## Extending the Application
+
+### Adding New Document Types
+
+Implement a new extractor in `src/data_extraction/` following the pattern in `extractor.py`.
+
+### Adding New Content Processors
+
+Implement a new processor in `src/processors/` following the patterns in the existing processor files.
+
+### Customizing the RAG Pipeline
+
+Modify `src/rag/pipeline.py` to customize the retrieval and generation processes.
+
+## License
+
+See the [LICENSE](LICENSE) file for details.
