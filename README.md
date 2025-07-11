@@ -1,10 +1,10 @@
-# DocChat - Multimodal RAG Application
+# arXivRAG - Multimodal RAG Chatbot Application
 
 A modular and extensible multimodal Retrieval-Augmented Generation (RAG) application for document querying.
 
 ## Overview
 
-DocChat is a RAG application that can:
+arXivRAG is a RAG application that can:
 
 1. Extract text, tables, and images from PDF documents
 2. Process and summarize each type of content using LLM chains
@@ -69,22 +69,6 @@ Reset the vector store:
 
 ```bash
 python app.py --reset
-```
-
-### As a Module
-
-```python
-from app import DocChatApp
-
-# Initialize the application
-app = DocChatApp()
-
-# Process a document
-processed_content = app.process_document('path/to/document.pdf')
-
-# Query the document
-response = app.query("What is the main topic of this document?")
-print(response['response'])
 ```
 
 ### Run the Demo
