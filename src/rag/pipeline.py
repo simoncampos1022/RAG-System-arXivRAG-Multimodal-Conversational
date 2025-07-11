@@ -1,0 +1,139 @@
+"""
+RAG pipeline implementation.
+"""
+from typing   import Dict, List, Any, Callable
+from operator import itemgetter
+
+from langchain_google_genai            import ChatGoogleGenerativeAI
+from langchain_core.prompts            import ChatPromptTemplate
+from langchain_core.messages           import SystemMessage, HumanMessage
+from langchain_core.runnables          import RunnablePassthrough, RunnableLambda
+from langchain_core.output_parsers     import StrOutputParser
+from langchain.retrievers.multi_vector import MultiVectorRetriever
+
+from src.config             import MODEL_NAME
+from src.processors.prompts import RAG_SYSTEM_MESSAGE
+
+
+class RAGPipeline:
+    """RAG pipeline implementation."""
+    
+    def __init__(self, retriever: MultiVectorRetriever, model_name: str = MODEL_NAME):
+        """
+        Initialize the RAG pipeline.
+        
+        Args:
+            retriever (MultiVectorRetriever): The document retriever
+            model_name                 (str): Name of the LLM model to use
+        """
+        self.retriever = retriever
+        self.llm       = ChatGoogleGenerativeAI(model=model_name)
+        self.rag_chain = self._create_rag_chain()
+        
+        
+    def _parse_docs(self, docs: List[Any]) -> Dict[str, List[Any]]:
+        """
+        Parse the retrieved documents into text, image, and table lists.
+        
+        Args:
+            docs (List[Any]): List of retrieved documents
+            
+        Returns:
+            Dict[str, List[Any]]: Dictionary with keys 'texts', 'images', 'tables'
+        """
+        parsed_texts, parsed_images, parsed_tables = [], [], []
+        
+        for doc in docs:
+            if type(doc).__name__ == 'Table':
+                parsed_tables.append(doc.metadata.text_as_html)
+                
+            elif type(doc).__name__ == 'Image':
+                parsed_images.append(doc.metadata.image_base64)
+                
+            elif type(doc).__name__ == 'CompositeElement':
+                parsed_texts.append(doc.text)
+
+        return {
+            'texts' : parsed_texts,
+            'images': parsed_images,
+            'tables': parsed_tables
+        }
+    
+    
+    def _build_prompt(self, kwargs: Dict[str, Any]) -> ChatPromptTemplate:
+        """
+        Build the prompt template for the RAG query.
+        
+        Args:
+            kwargs (Dict[str, Any]): Dictionary with keys 'context' and 'question'
+            
+        Returns:
+            ChatPromptTemplate: The chat prompt template
+        """
+        context  = kwargs['context']
+        question = kwargs['question']
+        
+        messages = [SystemMessage(content=RAG_SYSTEM_MESSAGE)]
+        
+        for txt in context['texts']:
+            messages.append(
+                HumanMessage(content=[{'type': 'text',
+                                       'text': f"[TEXT]:\n{txt}"}])
+            )
+            
+        for tbl in context['tables']:
+            messages.append(
+                HumanMessage(content=[{'type': 'text',
+                                       'text': f"[TABLE]:\n```html\n{tbl}\n```"}])
+            )
+            
+        for img in context['images']:
+            messages.append(
+                HumanMessage(content=[{'type': 'text',
+                                       'text': f"[IMAGE]:\n"},
+                                      
+                                      {'type'     : 'image_url',
+                                       'image_url': {'url': f"data:image/jpeg;base64,{img}"}}])
+            )
+            
+        messages.append(
+            HumanMessage(content=[{'type': 'text',
+                                   'text': f"Based on the above contexts, answer the question: {question}"}])
+        )
+        
+        return ChatPromptTemplate.from_messages(messages)
+    
+    
+    def _create_rag_chain(self) -> Callable:
+        """
+        Create the RAG chain.
+        
+        Returns:
+            Callable: The RAG chain
+        """
+        return (
+            {
+                'context' : itemgetter('question') | self.retriever | RunnableLambda(self._parse_docs),
+                'question': itemgetter('question')
+            }
+            | RunnablePassthrough().assign(
+                response=(
+                    RunnableLambda(self._build_prompt)
+                    | self.llm
+                    | StrOutputParser()
+                )
+            )
+        )
+    
+    
+    def query(self, question: str) -> Dict[str, Any]:
+        """
+        Query the RAG pipeline.
+        
+        Args:
+            question (str): The question to answer
+            
+        Returns:
+            Dict[str, Any]: Dictionary with keys 'question', 'context', and 'response'
+        """
+        return self.rag_chain.invoke({'question': question})
