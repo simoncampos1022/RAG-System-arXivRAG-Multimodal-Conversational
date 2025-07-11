@@ -1,12 +1,20 @@
 import arxiv
+import os
+import urllib.request
+from pathlib import Path
 from dateutil import parser
+from datetime import datetime
+from typing import List, Dict, Any, Optional, Union
+
+from src.config import TEMP_DIR
+
 
 class ArxivFetcher:
     def __init__(self):
         self.client = arxiv.Client()
     
     
-    def fetch_papers(self, subject_tags, start_date=None, end_date=None, max_results=100):
+    def fetch_papers(self, subject_tags=None, start_date=None, end_date=None, max_results=10):
         """
         Fetches papers from arXiv based on subject tags and date range.
         
@@ -56,12 +64,16 @@ class ArxivFetcher:
             papers = []
             for paper in results:
                 papers.append({
-                    'title'     : paper.title,
-                    'authors'   : [author.name for author in paper.authors],
-                    'published' : paper.published.strftime('%d/%m/%Y'),
-                    'link'      : paper.entry_id,
-                    'abstract'  : paper.summary,
-                    'categories': paper.categories
+                    'title'       : paper.title,
+                    'authors'     : [author.name for author in paper.authors],
+                    'published'   : paper.published.strftime('%Y-%m-%d'),
+                    'updated'     : paper.updated.strftime('%Y-%m-%d') if paper.updated else None,
+                    'arxiv_id'    : paper.get_short_id(),
+                    'pdf_url'     : paper.pdf_url,
+                    'entry_id'    : paper.entry_id,
+                    'abstract'    : paper.summary,
+                    'categories'  : paper.categories,
+                    'primary_category': paper.primary_category
                 })
             
             return papers
@@ -69,3 +81,75 @@ class ArxivFetcher:
         except Exception as e:
             print(f"Error fetching papers: {e}")
             return []
+            
+    def search_papers(self, query: str, max_results: int = 10):
+        """
+        Searches for papers based on a text query.
+        
+        Args:
+            query (str): The search query
+            max_results (int): Maximum number of results to return
+            
+        Returns:
+            list: List of paper dictionaries with metadata
+        """
+        search = arxiv.Search(
+            query=query,
+            max_results=max_results,
+            sort_by=arxiv.SortCriterion.Relevance
+        )
+        
+        try:
+            results = list(self.client.results(search))
+            
+            # Convert to dictionary format with required metadata
+            papers = []
+            for paper in results:
+                papers.append({
+                    'title'       : paper.title,
+                    'authors'     : [author.name for author in paper.authors],
+                    'published'   : paper.published.strftime('%Y-%m-%d'),
+                    'updated'     : paper.updated.strftime('%Y-%m-%d') if paper.updated else None,
+                    'arxiv_id'    : paper.get_short_id(),
+                    'pdf_url'     : paper.pdf_url,
+                    'entry_id'    : paper.entry_id,
+                    'abstract'    : paper.summary,
+                    'categories'  : paper.categories,
+                    'primary_category': paper.primary_category
+                })
+            
+            return papers
+            
+        except Exception as e:
+            print(f"Error searching papers: {e}")
+            return []
+    
+    def download_paper(self, paper_id: str) -> Optional[Path]:
+        """
+        Downloads a paper's PDF from arXiv.
+        
+        Args:
+            paper_id (str): The arXiv ID of the paper
+            
+        Returns:
+            Optional[Path]: Path to the downloaded PDF file, or None if download failed
+        """
+        try:
+            # Create the filename
+            filename = f"{paper_id.replace('/', '_')}.pdf"
+            filepath = TEMP_DIR / filename
+            
+            # Check if the file already exists
+            if filepath.exists():
+                return filepath
+                
+            # Construct the PDF URL
+            pdf_url = f"https://arxiv.org/pdf/{paper_id}"
+            
+            # Download the PDF
+            urllib.request.urlretrieve(pdf_url, filepath)
+            
+            return filepath
+        except Exception as e:
+            print(f"Error downloading paper {paper_id}: {e}")
+            return None
