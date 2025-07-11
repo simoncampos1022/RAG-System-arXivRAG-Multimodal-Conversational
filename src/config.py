@@ -3,8 +3,8 @@ Configuration settings for the arXivCSRAG application.
 """
 import os
 import torch
-from pathlib         import Path
-from dotenv          import load_dotenv
+from pathlib import Path
+from dotenv import load_dotenv
 from huggingface_hub import whoami
 
 
