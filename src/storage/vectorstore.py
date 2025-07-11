@@ -4,10 +4,12 @@ Vector storage and retrieval implementation.
 import uuid
 from typing import List, Any
 
-from langchain.vectorstores            import Chroma
+# from langchain.vectorstores            import Chroma
+from langchain_chroma  import Chroma
 from langchain.storage                 import InMemoryStore
 from langchain.schema.document         import Document
-from langchain.embeddings              import HuggingFaceEmbeddings
+# from langchain.embeddings              import HuggingFaceEmbeddings
+from langchain_huggingface             import HuggingFaceEmbeddings
 from langchain.retrievers.multi_vector import MultiVectorRetriever
 
 from src.config import EMBEDDING_MODEL, DEVICE, COLLECTION_NAME
