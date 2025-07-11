@@ -1,0 +1,162 @@
+[
+  {
+    "tag": "cs.AI",
+    "name": "Artificial Intelligence"
+  },
+  {
+    "tag": "cs.CL",
+    "name": "Computation and Language"
+  },
+  {
+    "tag": "cs.CC",
+    "name": "Computational Complexity"
+  },
+  {
+    "tag": "cs.CE",
+    "name": "Computational Engineering, Finance, and Science"
+  },
+  {
+    "tag": "cs.CG",
+    "name": "Computational Geometry"
+  },
+  {
+    "tag": "cs.GT",
+    "name": "Computer Science and Game Theory"
+  },
+  {
+    "tag": "cs.CV",
+    "name": "Computer Vision and Pattern Recognition"
+  },
+  {
+    "tag": "cs.CY",
+    "name": "Computers and Society"
+  },
+  {
+    "tag": "cs.CR",
+    "name": "Cryptography and Security"
+  },
+  {
+    "tag": "cs.DS",
+    "name": "Data Structures and Algorithms"
+  },
+  {
+    "tag": "cs.DB",
+    "name": "Databases"
+  },
+  {
+    "tag": "cs.DL",
+    "name": "Digital Libraries"
+  },
+  {
+    "tag": "cs.DM",
+    "name": "Discrete Mathematics"
+  },
+  {
+    "tag": "cs.DC",
+    "name": "Distributed, Parallel, and Cluster Computing"
+  },
+  {
+    "tag": "cs.ET",
+    "name": "Emerging Technologies"
+  },
+  {
+    "tag": "cs.FL",
+    "name": "Formal Languages and Automata Theory"
+  },
+  {
+    "tag": "cs.GL",
+    "name": "General Literature"
+  },
+  {
+    "tag": "cs.GR",
+    "name": "Graphics"
+  },
+  {
+    "tag": "cs.AR",
+    "name": "Hardware Architecture"
+  },
+  {
+    "tag": "cs.HC",
+    "name": "Human-Computer Interaction"
+  },
+  {
+    "tag": "cs.IR",
+    "name": "Information Retrieval"
+  },
+  {
+    "tag": "cs.IT",
+    "name": "Information Theory"
+  },
+  {
+    "tag": "cs.LO",
+    "name": "Logic in Computer Science"
+  },
+  {
+    "tag": "cs.LG",
+    "name": "Machine Learning"
+  },
+  {
+    "tag": "cs.MS",
+    "name": "Mathematical Software"
+  },
+  {
+    "tag": "cs.MA",
+    "name": "Multiagent Systems"
+  },
+  {
+    "tag": "cs.MM",
+    "name": "Multimedia"
+  },
+  {
+    "tag": "cs.NI",
+    "name": "Networking and Internet Architecture"
+  },
+  {
+    "tag": "cs.NE",
+    "name": "Neural and Evolutionary Computing"
+  },
+  {
+    "tag": "cs.NA",
+    "name": "Numerical Analysis"
+  },
+  {
+    "tag": "cs.OS",
+    "name": "Operating Systems"
+  },
+  {
+    "tag": "cs.OH",
+    "name": "Other Computer Science"
+  },
+  {
+    "tag": "cs.PF",
+    "name": "Performance"
+  },
+  {
+    "tag": "cs.PL",
+    "name": "Programming Languages"
+  },
+  {
+    "tag": "cs.RO",
+    "name": "Robotics"
+  },
+  {
+    "tag": "cs.SI",
+    "name": "Social and Information Networks"
+  },
+  {
+    "tag": "cs.SE",
+    "name": "Software Engineering"
+  },
+  {
+    "tag": "cs.SD",
+    "name": "Sound"
+  },
+  {
+    "tag": "cs.SC",
+    "name": "Symbolic Computation"
+  },
+  {
+    "tag": "cs.SY",
+    "name": "Systems and Control"
+  }
+]
