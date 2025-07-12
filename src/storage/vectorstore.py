@@ -86,6 +86,12 @@ class VectorStore:
             data           (List[Any]): List of data elements
             data_summaries (List[str]): List of data summaries
         """
+        if not data:
+            return
+
+        if len(data) != len(data_summaries):
+            raise ValueError(f"Length mismatch: {len(data)} data but {len(data_summaries)} summaries")
+    
         ids = [str(uuid.uuid4()) for _ in range(len(data))]
         
         summaries = [
@@ -123,11 +129,11 @@ class VectorStore:
     def reset(self) -> None:
         """Reset the vector store and document store."""
         try:
-            self.vector_store.delete_collection()
+            self.vector_store.reset_collection()
         except Exception as e:
             raise RuntimeError(f"Failed to reset vector store: {e}")
         
-        self.vector_store = self._create_vector_store(COLLECTION_NAME)
+        # self.vector_store = self._create_vector_store(COLLECTION_NAME)
         self.doc_store    = InMemoryStore()
         self.retriever    = self._create_retriever()
         

@@ -175,7 +175,6 @@ async def process_paper(file_path: str = Form(...)):
         # # Set the new retriever for the RAG pipeline
         # rag_pipeline.retriever = vector_store.retriever
         
-        
         # Process the paper
         pdf_path = Path(file_path)
         logger.info(f"Processing paper at {pdf_path}")
@@ -192,13 +191,13 @@ async def process_paper(file_path: str = Form(...)):
         
         
         # Process and summarize content
-        logger.info('Processing text content')
+        logger.info(f"Processing {len(content['texts'])} text content")
         text_summaries  = text_processor.process(content['texts'])
-        
-        logger.info('Processing table content')
+
+        logger.info(f"Processing {len(content['tables'])} table content")
         table_summaries = table_processor.process(content['tables'])
-        
-        logger.info('Processing image content')
+
+        logger.info(f"Processing {len(content['images'])} image content")
         image_summaries = image_processor.process(content['images'])
         
         
