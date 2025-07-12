@@ -15,7 +15,8 @@ user = whoami(token=os.getenv('HF_TOKEN'))
 
 # Base paths
 ROOT_DIR = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DATA_DIR = ROOT_DIR / 'data'
+TEMP_DIR = ROOT_DIR / 'temp'
+if not TEMP_DIR.exists(): TEMP_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # PDF Extraction Configuration
