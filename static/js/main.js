@@ -4,13 +4,14 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize UI and Chat managers
-    const uiManager = new UIManager();
+    const uiManager   = new UIManager();
     const chatManager = new ChatManager(uiManager);
     
+
     // API Keys configuration
     const saveApiKeysBtn = document.getElementById('save-api-keys-btn');
     saveApiKeysBtn.addEventListener('click', async () => {
-        const geminiApiKey = document.getElementById('gemini-api-key').value.trim();
+        const geminiApiKey     = document.getElementById('gemini-api-key').value.trim();
         const huggingfaceToken = document.getElementById('huggingface-token').value.trim();
         
         if (!geminiApiKey || !huggingfaceToken) {
@@ -37,30 +38,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
+
     // Paper search functionality
     const searchButton = document.getElementById('search-button');
     searchButton.addEventListener('click', async () => {
         // Get search parameters
         const subjectTags = Array.from(document.getElementById('subject-tags-select').selectedOptions).map(option => option.value);
-        const startDate = document.getElementById('start-date').value;
-        const endDate = document.getElementById('end-date').value;
-        const maxResults = parseInt(document.getElementById('max-results').value) || 10;
-        const query = document.getElementById('search-query').value.trim();
+        const startDate   = document.getElementById('start-date').value;
+        const endDate     = document.getElementById('end-date').value;
+        const maxResults  = parseInt(document.getElementById('max-results').value) || 10;
+        const query       = document.getElementById('search-query').value.trim();
         
-        if (!query) {
-            alert('Please enter a search query.');
-            return;
-        }
+        // if (!query) {
+        //     alert('Please enter a search query.');
+        //     return;
+        // }
         
         uiManager.showLoading('Searching for papers...');
         
         try {
             const response = await ApiService.fetchPapers({
                 subject_tags: subjectTags.length > 0 ? subjectTags : null,
-                start_date: startDate || null,
-                end_date: endDate || null,
-                max_results: maxResults,
-                query: query
+                start_date  : startDate || null,
+                end_date    : endDate || null,
+                max_results : maxResults,
+                query       : query
             });
             
             if (response.status === 'success') {
@@ -75,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             uiManager.hideLoading();
         }
     });
+    
     
     // Upload paper functionality
     const uploadButton = document.getElementById('upload-button');
@@ -109,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             uiManager.hideLoading();
         }
     });
+
     
     // Paper info modal buttons
     document.getElementById('open-arxiv-btn').addEventListener('click', function() {
@@ -162,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
+
     // Show API keys modal on first load
     setTimeout(() => {
         uiManager.showModal(uiManager.apiKeysModal);

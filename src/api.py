@@ -131,10 +131,11 @@ async def download_paper(paper_id: PaperID):
     """Download a paper's PDF from arXiv."""
     try:
         pdf_path = arxiv_fetcher.download_paper(paper_id.arxiv_id)
-        logger.info(f"Downloaded paper {paper_id.arxiv_id} to {pdf_path}")
         
         if not pdf_path:
             raise HTTPException(status_code=404, detail="Failed to download paper")
+        
+        logger.info(f"Downloaded paper {paper_id.arxiv_id} to {pdf_path}")
         
         return {'status': 'success', 'file_path': str(pdf_path)}
     
@@ -169,7 +170,11 @@ async def process_paper(file_path: str = Form(...)):
     """Process a paper for RAG."""
     try:
         # # Reset the vector store
-        vector_store.reset()
+        # vector_store.reset()
+        
+        # # Set the new retriever for the RAG pipeline
+        # rag_pipeline.retriever = vector_store.retriever
+        
         
         # Process the paper
         pdf_path = Path(file_path)
@@ -185,6 +190,7 @@ async def process_paper(file_path: str = Form(...)):
         logger.info(f"Separating content types from {len(chunks)} chunks")
         content = separate_content_types(chunks)
         
+        
         # Process and summarize content
         logger.info('Processing text content')
         text_summaries  = text_processor.process(content['texts'])
@@ -194,6 +200,7 @@ async def process_paper(file_path: str = Form(...)):
         
         logger.info('Processing image content')
         image_summaries = image_processor.process(content['images'])
+        
         
         # Add to vector store
         logger.info("Adding processed content to vector store")
@@ -222,6 +229,8 @@ async def process_paper(file_path: str = Form(...)):
 async def chat_with_paper(message: ChatMessage):
     """Chat with a processed paper."""
     try:
+        rag_pipeline.retriever = vector_store.retriever
+        
         # Query the RAG pipeline
         logger.info(f"Chatting with paper: {message.message}")
         response = rag_pipeline.query(message.message)
@@ -246,6 +255,7 @@ async def reset_chat():
     try:
         logger.info("Resetting chat and vector store")
         vector_store.reset()
+        rag_pipeline.retriever = vector_store.retriever
         return {'status': 'success', 'message': 'Chat reset successfully'}
     
     except Exception as e:
