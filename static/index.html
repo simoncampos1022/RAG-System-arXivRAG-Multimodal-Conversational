@@ -28,38 +28,40 @@
                 <div class="col-lg-5 left-panel">
                     <div class="search-panel">
                         <h2>Search arXiv Papers</h2>
-                        
-                        <!-- Subject Tags Filter -->
-                        <div class="filter-group">
-                            <label>Subject Tags</label>
-                            <div class="subject-tags-container">
-                                <select id="subject-tags-select" class="form-select" multiple>
-                                    <!-- Will be populated via JavaScript -->
-                                </select>
+
+                        <div class="filters-grid">
+                            <!-- Subject Tags Filter -->
+                            <div class="filter-group">
+                                <label>Subject Tags</label>
+                                <div class="subject-tags-container">
+                                    <select id="subject-tags-select" class="form-select" multiple>
+                                        <!-- Will be populated via JavaScript -->
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Date Range Filter -->
+                            <div class="filter-group">
+                                <label>Date Range</label>
+                                <div class="date-range-inputs">
+                                    <input type="date" id="start-date" class="form-control" placeholder="Start Date">
+                                    <input type="date" id="end-date" class="form-control" placeholder="End Date">
+                                </div>
+                            </div>
+
+                            <!-- Search Query -->
+                            <div class="filter-group">
+                                <label>Search Query</label>
+                                <input type="text" id="search-query" class="form-control" placeholder="Enter search terms...">
+                            </div>
+
+                            <!-- Max Results Filter -->
+                            <div class="filter-group">
+                                <label>Max Results</label>
+                                <input type="number" id="max-results" class="form-control" value="10" min="1" max="100">
                             </div>
                         </div>
-                        
-                        <!-- Date Range Filter -->
-                        <div class="filter-group">
-                            <label>Date Range</label>
-                            <div class="date-range-inputs">
-                                <input type="date" id="start-date" class="form-control" placeholder="Start Date">
-                                <input type="date" id="end-date" class="form-control" placeholder="End Date">
-                            </div>
-                        </div>
-                        
-                        <!-- Max Results Filter -->
-                        <div class="filter-group">
-                            <label>Max Results</label>
-                            <input type="number" id="max-results" class="form-control" value="10" min="1" max="100">
-                        </div>
-                        
-                        <!-- Search Query -->
-                        <div class="filter-group">
-                            <label>Search Query</label>
-                            <input type="text" id="search-query" class="form-control" placeholder="Enter search terms...">
-                        </div>
-                        
+                                                
                         <!-- Search Button -->
                         <button id="search-button" class="btn btn-primary search-btn">
                             <i class="bi bi-search"></i> Search
