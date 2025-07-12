@@ -122,9 +122,13 @@ class VectorStore:
         
     def reset(self) -> None:
         """Reset the vector store and document store."""
-        self.vector_store.delete_collection()
-        self.doc_store.mset([])
+        try:
+            self.vector_store.delete_collection()
+        except Exception as e:
+            raise RuntimeError(f"Failed to reset vector store: {e}")
+        
         self.vector_store = self._create_vector_store(COLLECTION_NAME)
+        self.doc_store    = InMemoryStore()
         self.retriever    = self._create_retriever()
         
         

@@ -5,9 +5,9 @@
 
 class ChatManager {
     constructor(uiManager) {
-        this.uiManager = uiManager;
+        this.uiManager        = uiManager;
         this.currentPaperPath = null;
-        this.isProcessed = false;
+        this.isProcessed      = false;
         
         // Initialize chat events
         this.initEvents();
@@ -17,8 +17,8 @@ class ChatManager {
      * Initialize chat event listeners
      */
     initEvents() {
-        const chatInput = document.getElementById('chat-input');
-        const sendButton = document.getElementById('send-message-btn');
+        const chatInput   = document.getElementById('chat-input');
+        const sendButton  = document.getElementById('send-message-btn');
         const resetButton = document.getElementById('reset-chat-btn');
         
         // Send message on button click
@@ -45,7 +45,7 @@ class ChatManager {
      */
     async sendMessage() {
         const chatInput = document.getElementById('chat-input');
-        const message = chatInput.value.trim();
+        const message   = chatInput.value.trim();
         
         if (!message || !this.isProcessed) {
             return;
@@ -81,6 +81,7 @@ class ChatManager {
         }
     }
     
+
     /**
      * Process a paper for chatting
      * @param {string} filePath - Path to the paper file
@@ -94,7 +95,7 @@ class ChatManager {
         this.currentPaperPath = filePath;
         this.uiManager.clearChat();
         this.uiManager.disableChat();
-        this.uiManager.showLoading('Processing paper... This may take a minute.');
+        this.uiManager.showLoading('Processing paper... This may take about 1-2 minutes.');
         
         try {
             const response = await ApiService.processPaper(filePath);
@@ -102,7 +103,10 @@ class ChatManager {
             if (response.status === 'success') {
                 this.isProcessed = true;
                 this.uiManager.enableChat();
-                this.uiManager.addSystemMessage(`Paper processed successfully! Extracted ${response.stats.texts} text chunks, ${response.stats.tables} tables, and ${response.stats.images} images. You can now ask questions about the paper.`);
+                this.uiManager.addSystemMessage(
+                    `Extracted ${response.stats.texts} text chunks, ${response.stats.tables} tables, and ${response.stats.images} images.<br>
+                    Paper processed successfully! You can now ask question about the paper.<br>`
+                );
             } else {
                 this.uiManager.addSystemMessage('Error: Failed to process paper. Please try again.');
             }
@@ -114,6 +118,7 @@ class ChatManager {
         }
     }
     
+
     /**
      * Reset the chat session
      */
@@ -135,6 +140,7 @@ class ChatManager {
         }
     }
     
+
     /**
      * Download and process a paper by arXiv ID
      * @param {string} arxivId - The arXiv ID of the paper

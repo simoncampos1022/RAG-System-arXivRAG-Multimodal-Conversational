@@ -4,7 +4,11 @@ from pathlib  import Path
 from dateutil import parser
 from typing   import List, Dict, Any, Optional
 
+from utils.setup_logger import setup_logger
 from src.config import TEMP_DIR
+
+# Configure logging
+logger = setup_logger(__name__)
 
 
 class ArxivFetcher:
@@ -36,11 +40,14 @@ class ArxivFetcher:
         else               : filter_query = ' OR '.join([f"cat:{tag}" for tag in subject_tags]) # Query with selected tags
 
         if not query: search_query = ''
-        else        : search_query = ' AND '.join([f"(ti:{q} OR abs:{q})" for q in query.split()]) # Search by title or abstract
+        else        : search_query = ' AND (' + ' AND '.join([f"(ti:{q} OR abs:{q})" for q in query.split()]) + ')' # Search by title or abstract
+        
+        final_query = f"({filter_query}){search_query}" 
+        logger.info(f"Fetching papers with query: {final_query}")
 
         # Search object
         search = arxiv.Search(
-            query       = f"({filter_query}) AND ({search_query})",
+            query       = final_query,
             max_results = max_results,
             sort_by     = arxiv.SortCriterion.SubmittedDate
         )

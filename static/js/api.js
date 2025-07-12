@@ -6,9 +6,9 @@
 class ApiService {
     /**
      * Configure API keys
-     * @param {string} geminiApiKey - The Google Gemini API key
-     * @param {string} huggingfaceToken - The Hugging Face token
-     * @returns {Promise} - The API response
+     * @param   {string} geminiApiKey     - The Google Gemini API key
+     * @param   {string} huggingfaceToken - The Hugging Face token
+     * @returns {Promise}                 - The API response
      */
     static async configureApiKeys(geminiApiKey, huggingfaceToken) {
         try {
@@ -18,7 +18,7 @@ class ApiService {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    gemini_api_key: geminiApiKey,
+                    gemini_api_key   : geminiApiKey,
                     huggingface_token: huggingfaceToken
                 })
             });
@@ -30,10 +30,11 @@ class ApiService {
         }
     }
 
+
     /**
      * Fetch papers from arXiv
-     * @param {Object} searchParams - The search parameters
-     * @returns {Promise} - The API response
+     * @param   {Object} searchParams - The search parameters
+     * @returns {Promise}             - The API response
      */
     static async fetchPapers(searchParams) {
         try {
@@ -52,10 +53,11 @@ class ApiService {
         }
     }
 
+
     /**
      * Get paper metadata
-     * @param {string} arxivId - The arXiv ID of the paper
-     * @returns {Promise} - The API response
+     * @param   {string} arxivId - The arXiv ID of the paper
+     * @returns {Promise}        - The API response
      */
     static async getPaperMetadata(arxivId) {
         try {
@@ -76,10 +78,11 @@ class ApiService {
         }
     }
 
+
     /**
      * Download a paper
-     * @param {string} arxivId - The arXiv ID of the paper
-     * @returns {Promise} - The API response
+     * @param   {string} arxivId - The arXiv ID of the paper
+     * @returns {Promise}        - The API response
      */
     static async downloadPaper(arxivId) {
         try {
@@ -100,10 +103,11 @@ class ApiService {
         }
     }
 
+
     /**
      * Upload a paper
-     * @param {File} file - The PDF file to upload
-     * @returns {Promise} - The API response
+     * @param   {File} file - The PDF file to upload
+     * @returns {Promise}   - The API response
      */
     static async uploadPaper(file) {
         try {
@@ -112,7 +116,7 @@ class ApiService {
             
             const response = await fetch('/api/upload-paper', {
                 method: 'POST',
-                body: formData
+                body  : formData
             });
             
             return await response.json();
@@ -122,10 +126,11 @@ class ApiService {
         }
     }
 
+
     /**
      * Process a paper for RAG
-     * @param {string} filePath - The path to the PDF file
-     * @returns {Promise} - The API response
+     * @param   {string} filePath - The path to the PDF file
+     * @returns {Promise}         - The API response
      */
     static async processPaper(filePath) {
         try {
@@ -134,7 +139,7 @@ class ApiService {
             
             const response = await fetch('/api/process-paper', {
                 method: 'POST',
-                body: formData
+                body  : formData
             });
             
             return await response.json();
@@ -144,10 +149,11 @@ class ApiService {
         }
     }
 
+
     /**
      * Chat with a processed paper
-     * @param {string} message - The user's message
-     * @returns {Promise} - The API response
+     * @param   {string} message - The user's message
+     * @returns {Promise}        - The API response
      */
     static async chatWithPaper(message) {
         try {
@@ -167,6 +173,7 @@ class ApiService {
             throw error;
         }
     }
+
 
     /**
      * Reset the chat
