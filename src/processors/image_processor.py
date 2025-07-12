@@ -21,7 +21,7 @@ class ImageProcessor:
         Args:
             model_name (str): Name of the LLM model to use
         """
-        self.llm                 = ChatGoogleGenerativeAI(model=model_name)
+        self.llm   = ChatGoogleGenerativeAI(model=model_name)
         self.chain = self._create_summary_chain()
         
         
@@ -35,11 +35,8 @@ class ImageProcessor:
         messages = [(
             'user',
             [
-                {'type': 'text', 
-                 'text': IMAGE_SUMMARY_PROMPT},
-                
-                {'type'     : 'image_url',
-                 'image_url': {'url': 'data:image/jpeg;base64,{image}'}}
+                {'type': 'text'     , 'text': IMAGE_SUMMARY_PROMPT},
+                {'type': 'image_url', 'image_url': {'url': 'data:image/jpeg;base64,{image}'}}
             ]
         )]
         
@@ -61,9 +58,7 @@ class ImageProcessor:
             List[str]: List of image summaries
         """
         summaries = []
-        
         for image in images:
             summary = self.chain.invoke({'image': image.metadata.image_base64})
             summaries.append(summary)
-            
         return summaries

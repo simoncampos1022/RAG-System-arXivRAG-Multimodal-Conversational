@@ -35,11 +35,12 @@ class ArxivFetcher:
         if not subject_tags: filter_query = 'cat:cs.*'                                          # Default to all CS tags
         else               : filter_query = ' OR '.join([f"cat:{tag}" for tag in subject_tags]) # Query with selected tags
 
-        full_query = f'(ti:"{query}" OR abs:"{query}") AND ({filter_query})' if query else filter_query
+        if not query: search_query = ''
+        else        : search_query = ' AND '.join([f"(ti:{q} OR abs:{q})" for q in query.split()]) # Search by title or abstract
 
         # Search object
         search = arxiv.Search(
-            query       = full_query,
+            query       = f"({filter_query}) AND ({search_query})",
             max_results = max_results,
             sort_by     = arxiv.SortCriterion.SubmittedDate
         )
@@ -59,7 +60,6 @@ class ArxivFetcher:
                     if end_date_obj   and paper_date > end_date_obj  : continue
                     
                     filtered_results.append(paper)
-                
                 results = filtered_results
             
             # Convert to dictionary format with required metadata
@@ -98,17 +98,12 @@ class ArxivFetcher:
             # Create the filename
             filename = f"{paper_id.replace('/', '_')}.pdf"
             filepath = TEMP_DIR / filename
-            
-            # Check if the file already exists
             if filepath.exists():
                 return filepath
-                
-            # Construct the PDF URL
-            pdf_url = f"https://arxiv.org/pdf/{paper_id}"
-            
+
             # Download the PDF
+            pdf_url = f"https://arxiv.org/pdf/{paper_id}"
             urllib.request.urlretrieve(pdf_url, filepath)
-            
             return filepath
         
         except Exception as e:

@@ -42,22 +42,13 @@ class RAGPipeline:
             Dict[str, List[Any]]: Dictionary with keys 'texts', 'images', 'tables'
         """
         parsed_texts, parsed_images, parsed_tables = [], [], []
-        
-        for doc in docs:
-            if type(doc).__name__ == 'Table':
-                parsed_tables.append(doc.metadata.text_as_html)
-                
-            elif type(doc).__name__ == 'Image':
-                parsed_images.append(doc.metadata.image_base64)
-                
-            elif type(doc).__name__ == 'CompositeElement':
-                parsed_texts.append(doc.text)
 
-        return {
-            'texts' : parsed_texts,
-            'images': parsed_images,
-            'tables': parsed_tables
-        }
+        for doc in docs:
+            if   type(doc).__name__ == 'Table'           : parsed_tables.append(doc.metadata.text_as_html)
+            elif type(doc).__name__ == 'Image'           : parsed_images.append(doc.metadata.image_base64)
+            elif type(doc).__name__ == 'CompositeElement': parsed_texts.append(doc.text)
+
+        return {'texts': parsed_texts, 'images': parsed_images, 'tables': parsed_tables}
     
     
     def _build_prompt(self, kwargs: Dict[str, Any]) -> ChatPromptTemplate:
@@ -72,35 +63,21 @@ class RAGPipeline:
         """
         context  = kwargs['context']
         question = kwargs['question']
-        
+    
         messages = [SystemMessage(content=RAG_SYSTEM_MESSAGE)]
         
-        for txt in context['texts']:
-            messages.append(
-                HumanMessage(content=[{'type': 'text',
-                                       'text': f"[TEXT]:\n{txt}"}])
-            )
-            
-        for tbl in context['tables']:
-            messages.append(
-                HumanMessage(content=[{'type': 'text',
-                                       'text': f"[TABLE]:\n```html\n{tbl}\n```"}])
-            )
-            
+        for txt in context['texts'] : messages.append(HumanMessage(content=[{'type': 'text', 'text': f"[TEXT]:\n{txt}"}]))
+        for tbl in context['tables']: messages.append(HumanMessage(content=[{'type': 'text', 'text': f"[TABLE]:\n```html\n{tbl}\n```"}]))
         for img in context['images']:
             messages.append(
-                HumanMessage(content=[{'type': 'text',
-                                       'text': f"[IMAGE]:\n"},
-                                      
-                                      {'type'     : 'image_url',
-                                       'image_url': {'url': f"data:image/jpeg;base64,{img}"}}])
+                HumanMessage(content=[{'type': 'text'     , 'text': f"[IMAGE]:\n"},
+                                      {'type': 'image_url', 'image_url': {'url': f"data:image/jpeg;base64,{img}"}}])
             )
             
         messages.append(
             HumanMessage(content=[{'type': 'text',
                                    'text': f"Based on the above contexts, answer the question: {question}"}])
         )
-        
         return ChatPromptTemplate.from_messages(messages)
     
     
