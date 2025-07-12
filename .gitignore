@@ -1,7 +1,6 @@
 .github/
 .env
 __pycache__/
-uploads/
 assets/Configure API Keys pop-up.png
 assets/Main Screen.png
 assets/Read Paper Information pop-up.png

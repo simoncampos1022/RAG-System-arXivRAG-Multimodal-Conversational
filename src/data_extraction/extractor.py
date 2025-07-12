@@ -1,9 +1,8 @@
 """
 PDF document extraction utilities.
 """
-from pathlib import Path
-from typing  import List, Dict, Any, Union
-
+from pathlib                    import Path
+from typing                     import List, Dict, Any, Union
 from unstructured.partition.pdf import partition_pdf
 
 from src.config import PDF_EXTRACTION_CONFIG
@@ -25,10 +24,7 @@ def extract_from_pdf(pdf_path: Union[str, Path]) -> List[Any]:
         raise FileNotFoundError(f"PDF file not found: {pdf_path}")
     
     # Extract content from PDF
-    chunks = partition_pdf(
-        filename=pdf_path,
-        **PDF_EXTRACTION_CONFIG
-    )
+    chunks = partition_pdf(filename=pdf_path, **PDF_EXTRACTION_CONFIG)
     return chunks
 
 
@@ -43,7 +39,6 @@ def separate_content_types(chunks: List[Any]) -> Dict[str, List[Any]]:
         Dict[str, List[Any]]: Dictionary with keys 'texts', 'images', 'tables'
     """
     texts, images, tables = [], [], []
-
     for chunk in chunks:
         if   type(chunk).__name__ == 'Table': tables.append(chunk)
         elif type(chunk).__name__ == 'Image': images.append(chunk)
@@ -55,8 +50,4 @@ def separate_content_types(chunks: List[Any]) -> Dict[str, List[Any]]:
                 if   type(element).__name__ == 'Image': images.append(element)
                 elif type(element).__name__ == 'Table': tables.append(element)
     
-    return {
-        'texts' : texts,
-        'images': images,
-        'tables': tables
-    }
+    return {'texts': texts, 'images': images, 'tables': tables}

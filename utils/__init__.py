@@ -1,3 +1,0 @@
-"""
-arXiv utilities module.
-"""

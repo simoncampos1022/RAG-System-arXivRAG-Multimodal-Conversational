@@ -31,7 +31,7 @@ class RAGPipeline:
         self.rag_chain = self._create_rag_chain()
         
         
-    def _parse_docs(self, docs: List[Any]) -> Dict[str, List[Any]]:
+    def parse_docs(self, docs: List[Any]) -> Dict[str, List[Any]]:
         """
         Parse the retrieved documents into text, image, and table lists.
         
@@ -113,7 +113,7 @@ class RAGPipeline:
         """
         return (
             {
-                'context' : itemgetter('question') | self.retriever | RunnableLambda(self._parse_docs),
+                'context' : itemgetter('question') | self.retriever | RunnableLambda(self.parse_docs),
                 'question': itemgetter('question')
             }
             | RunnablePassthrough().assign(
