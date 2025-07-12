@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from utils.setup_logger             import setup_logger
 from src.config                     import TEMP_DIR, ROOT_DIR
-from src.fetcher                    import ArxivFetcher
+from src.fetcher.arxiv_fetcher      import ArxivFetcher
 from src.data_extraction.extractor  import extract_from_pdf, separate_content_types
 from src.processors.text_processor  import TextProcessor
 from src.processors.table_processor import TableProcessor
@@ -79,7 +79,9 @@ async def configure_api_keys(api_keys: APIKeys):
         # Set environment variables
         os.environ['GOOGLE_API_KEY'] = api_keys.gemini_api_key
         os.environ['HF_TOKEN']       = api_keys.huggingface_token
-
+        
+        logger.info('API keys configured successfully')
+        
         return {'status' : 'success', 
                 'message': 'API keys configured successfully'}
         
@@ -100,6 +102,8 @@ async def fetch_papers(search_query: SearchQuery):
             query        = search_query.query
         )
         
+        logger.info(f"Fetched {len(papers)} papers")
+        
         return {'status': 'success', 'papers': papers}
 
     except Exception as e:
@@ -111,9 +115,7 @@ async def fetch_papers(search_query: SearchQuery):
 async def get_paper_metadata(paper_id: PaperID):
     """Get metadata for a specific paper."""
     try:
-        # Search for the paper by ID
         search = arxiv_fetcher.fetch_papers(f"id:{paper_id.arxiv_id}", max_results=1)
-
         if not search:
             raise HTTPException(status_code=404, detail='Paper not found')
 
@@ -129,11 +131,13 @@ async def download_paper(paper_id: PaperID):
     """Download a paper's PDF from arXiv."""
     try:
         pdf_path = arxiv_fetcher.download_paper(paper_id.arxiv_id)
+        logger.info(f"Downloaded paper {paper_id.arxiv_id} to {pdf_path}")
         
         if not pdf_path:
             raise HTTPException(status_code=404, detail="Failed to download paper")
         
-        return {"status": "success", "file_path": str(pdf_path)}
+        return {'status': 'success', 'file_path': str(pdf_path)}
+    
     except Exception as e:
         logger.error(f"Error downloading paper: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -151,6 +155,7 @@ async def upload_paper(file: UploadFile = File(...)):
         # Save the uploaded file
         with open(filepath, 'wb') as f:
             f.write(await file.read())
+        logger.info(f"Uploaded paper saved at {filepath}")
         
         return {'status': 'success', 'file_path': str(filepath)}
     
@@ -164,31 +169,41 @@ async def process_paper(file_path: str = Form(...)):
     """Process a paper for RAG."""
     try:
         # # Reset the vector store
-        # vector_store.reset()
+        vector_store.reset()
         
         # Process the paper
         pdf_path = Path(file_path)
+        logger.info(f"Processing paper at {pdf_path}")
         if not pdf_path.exists():
             raise HTTPException(status_code=404, detail='PDF file not found')
         
         # Extract content from PDF
+        logger.info(f"Extracting content from {pdf_path}")
         chunks = extract_from_pdf(pdf_path)
         
         # Separate content types
+        logger.info(f"Separating content types from {len(chunks)} chunks")
         content = separate_content_types(chunks)
         
         # Process and summarize content
+        logger.info('Processing text content')
         text_summaries  = text_processor.process(content['texts'])
+        
+        logger.info('Processing table content')
         table_summaries = table_processor.process(content['tables'])
+        
+        logger.info('Processing image content')
         image_summaries = image_processor.process(content['images'])
         
         # Add to vector store
+        logger.info("Adding processed content to vector store")
         vector_store.add_contents(
             content['texts'] , text_summaries,
             content['tables'], table_summaries,
             content['images'], image_summaries
         )
         
+        logger.info(f"Processed paper {pdf_path.name} successfully")
         return {
             'status': 'success',
             'stats' : {
@@ -208,6 +223,7 @@ async def chat_with_paper(message: ChatMessage):
     """Chat with a processed paper."""
     try:
         # Query the RAG pipeline
+        logger.info(f"Chatting with paper: {message.message}")
         response = rag_pipeline.query(message.message)
         
         # Get the retrieved documents
@@ -228,6 +244,7 @@ async def chat_with_paper(message: ChatMessage):
 async def reset_chat():
     """Reset the chat and vector store."""
     try:
+        logger.info("Resetting chat and vector store")
         vector_store.reset()
         return {'status': 'success', 'message': 'Chat reset successfully'}
     
@@ -237,4 +254,6 @@ async def reset_chat():
 
 
 # Serve static files
-app.mount('/', StaticFiles(directory=ROOT_DIR / 'static', html=True), name='static')
+app.mount('/static', StaticFiles(directory=ROOT_DIR / 'static', html=False), name='static')
+app.mount('/data'  , StaticFiles(directory=ROOT_DIR / 'static/data')       , name='data')
+app.mount('/'      , StaticFiles(directory=ROOT_DIR / 'static', html=True) , name='root')

@@ -21,7 +21,7 @@ class TextProcessor:
         Args:
             model_name (str): Name of the LLM model to use
         """
-        self.llm                = ChatGoogleGenerativeAI(model=model_name)
+        self.llm   = ChatGoogleGenerativeAI(model=model_name)
         self.chain = self._create_summary_chain()
         
         
@@ -51,9 +51,7 @@ class TextProcessor:
             List[str]: List of text summaries
         """
         summaries = []
-        
         for text in texts:
             summary = self.chain.invoke(text.text)
-            summaries.append(summary)
-            
+            summaries.append(summary) 
         return summaries

@@ -21,7 +21,7 @@ class TableProcessor:
         Args:
             model_name (str): Name of the LLM model to use
         """
-        self.llm                 = ChatGoogleGenerativeAI(model=model_name)
+        self.llm   = ChatGoogleGenerativeAI(model=model_name)
         self.chain = self._create_summary_chain()
    
         
@@ -51,9 +51,7 @@ class TableProcessor:
             List[str]: List of table summaries
         """
         summaries = []
-        
         for table in tables:
             summary = self.chain.invoke(table.metadata.text_as_html)
-            summaries.append(summary)
-            
+            summaries.append(summary) 
         return summaries
