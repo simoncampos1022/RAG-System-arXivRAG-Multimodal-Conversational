@@ -226,7 +226,17 @@ async def process_paper(file_path: str = Form(...)):
 
 @app.post('/api/chat')
 async def chat_with_paper(message: ChatMessage):
-    """Chat with a processed paper."""
+    """
+    Chat with a processed paper.
+    
+    Returns:
+        - status: success or error
+        - response: The generated text response
+        - citations: Dictionary containing three keys:
+            - texts: List of text excerpts used as citations
+            - images: List of base64-encoded image strings
+            - tables: List of HTML-formatted table strings
+    """
     try:
         rag_pipeline.retriever = vector_store.retriever
         
@@ -245,6 +255,35 @@ async def chat_with_paper(message: ChatMessage):
         }
     except Exception as e:
         logger.error(f"Error chatting with paper: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post('/api/fetch-citations')
+async def fetch_citations(message: ChatMessage):
+    """
+    Fetch citations for a specific query without generating a response.
+    
+    This is useful for retrieving only the source documents that would be used
+    to answer a query without generating the complete answer.
+    
+    Returns:
+        - status: success or error
+        - citations: Dictionary containing three keys:
+            - texts: List of text excerpts used as citations
+            - images: List of base64-encoded image strings
+            - tables: List of HTML-formatted table strings
+    """
+    try:
+        # Get the retrieved documents
+        retrieved_docs = vector_store.retrieve(message.message)
+        parsed_docs    = rag_pipeline.parse_docs(retrieved_docs)
+        
+        return {
+            'status'   : 'success',
+            'citations': parsed_docs
+        }
+    except Exception as e:
+        logger.error(f"Error fetching citations: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

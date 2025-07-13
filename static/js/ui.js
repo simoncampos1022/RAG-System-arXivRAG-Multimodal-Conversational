@@ -8,6 +8,7 @@ class UIManager {
         // Cache DOM elements
         this.apiKeysModal      = document.getElementById('api-keys-modal');
         this.paperInfoModal    = document.getElementById('paper-info-modal');
+        this.citationsModal    = document.getElementById('citations-modal');
         this.loadingOverlay    = document.getElementById('loading-overlay');
         this.loadingMessage    = document.getElementById('loading-message');
         this.resultsContainer  = document.getElementById('results-container');
@@ -29,6 +30,7 @@ class UIManager {
             button.addEventListener('click', () => {
                 this.hideModal(this.apiKeysModal);
                 this.hideModal(this.paperInfoModal);
+                this.hideModal(this.citationsModal);
             });
         });
         
@@ -43,6 +45,8 @@ class UIManager {
                 this.hideModal(this.apiKeysModal);
             } else if (event.target === this.paperInfoModal) {
                 this.hideModal(this.paperInfoModal);
+            } else if (event.target === this.citationsModal) {
+                this.hideModal(this.citationsModal);
             }
         });
     }
@@ -194,15 +198,27 @@ class UIManager {
                 .replace(/`(.*?)`/g, '<code>$1</code>')
                 .replace(/\n/g, '<br>');
             
-            messageElement.innerHTML = formattedMessage;
-            
-            // Add citations if available
-            if (citations && (citations.texts.length > 0 || citations.images.length > 0 || citations.tables.length > 0)) {
-                const citationsElement     = document.createElement('div');
-                citationsElement.className = 'citations';
-                citationsElement.innerHTML = '<strong>Sources:</strong> Text excerpts, tables, and images from the paper were used to generate this response.';
-                messageElement.appendChild(citationsElement);
-            }
+            messageElement.innerHTML = formattedMessage;                // Add citations if available
+                if (citations && (citations.texts.length > 0 || citations.images.length > 0 || citations.tables.length > 0)) {
+                    const citationsElement     = document.createElement('div');
+                    citationsElement.className = 'citations';
+                    
+                    // Add sources section with View All button
+                    const sourcesHeader = document.createElement('div');
+                    sourcesHeader.className = 'citations-header';
+                    sourcesHeader.innerHTML = `
+                        <button class="view-all-citations-btn">View Sources</button>
+                    `;
+                    citationsElement.appendChild(sourcesHeader);
+                    
+                    messageElement.appendChild(citationsElement);
+                    
+                    // Add view all functionality
+                    const viewAllBtn = sourcesHeader.querySelector('.view-all-citations-btn');
+                    viewAllBtn.addEventListener('click', () => {
+                        this.showCitationsModal('Response to: ' + message, citations);
+                    });
+                }
         } else {
             messageElement.textContent = message;
         }
@@ -250,5 +266,99 @@ class UIManager {
         document.getElementById('chat-input').disabled       = true;
         document.getElementById('send-message-btn').disabled = true;
         document.getElementById('reset-chat-btn').disabled   = true;
+    }
+    
+
+    /**
+     * Show citations in a modal
+     * @param {string} query     - The query that generated these citations
+     * @param {Object} citations - The citations object with texts, tables, and images
+     */
+    showCitationsModal(query, citations) {
+        // Cache DOM elements
+        const citationsModal    = document.getElementById('citations-modal');
+        const citationQuery     = document.getElementById('citation-query');
+        const citationsContainer = document.getElementById('citations-container');
+        
+        // Set the query
+        citationQuery.textContent = `"${query}"`;
+        
+        // Clear previous citations
+        citationsContainer.innerHTML = '';
+        
+        // Add text citations
+        if (citations.texts.length > 0) {
+            const textSection = document.createElement('div');
+            textSection.className = 'citation-section';
+            textSection.innerHTML = '<h4>Text Excerpts</h4>';
+            
+            const textList = document.createElement('div');
+            textList.className = 'citation-list';
+            
+            citations.texts.forEach((text, index) => {
+                const textItem = document.createElement('div');
+                textItem.className = 'text-citation';
+                textItem.innerHTML = `<div class="citation-number">${index + 1}</div><div class="citation-text">${text}</div>`;
+                textList.appendChild(textItem);
+            });
+            
+            textSection.appendChild(textList);
+            citationsContainer.appendChild(textSection);
+        }
+        
+        // Add table citations
+        if (citations.tables.length > 0) {
+            const tableSection = document.createElement('div');
+            tableSection.className = 'citation-section';
+            tableSection.innerHTML = '<h4>Tables</h4>';
+            
+            const tableList = document.createElement('div');
+            tableList.className = 'citation-list';
+            
+            citations.tables.forEach((tableHtml, index) => {
+                const tableItem = document.createElement('div');
+                tableItem.className = 'table-citation';
+                
+                // Wrap the table in a container for better responsiveness
+                tableItem.innerHTML = `
+                    <div class="citation-number">${index + 1}</div>
+                    <div class="citation-table-container">
+                        <div class="citation-table">${tableHtml}</div>
+                    </div>
+                `;
+                tableList.appendChild(tableItem);
+            });
+            
+            tableSection.appendChild(tableList);
+            citationsContainer.appendChild(tableSection);
+        }
+        
+        // Add image citations
+        if (citations.images.length > 0) {
+            const imageSection = document.createElement('div');
+            imageSection.className = 'citation-section';
+            imageSection.innerHTML = '<h4>Images</h4>';
+            
+            const imageList = document.createElement('div');
+            imageList.className = 'citation-list';
+            
+            citations.images.forEach((imageBase64, index) => {
+                const imageItem = document.createElement('div');
+                imageItem.className = 'image-citation';
+                imageItem.innerHTML = `
+                    <div class="citation-number">${index + 1}</div>
+                    <div class="citation-image-container">
+                        <img src="data:image/jpeg;base64,${imageBase64}" alt="Citation image ${index + 1}" class="responsive-image" loading="lazy">
+                    </div>
+                `;
+                imageList.appendChild(imageItem);
+            });
+            
+            imageSection.appendChild(imageList);
+            citationsContainer.appendChild(imageSection);
+        }
+        
+        // Show the modal
+        this.showModal(citationsModal);
     }
 }
