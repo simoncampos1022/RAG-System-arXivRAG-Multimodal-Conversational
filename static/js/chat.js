@@ -164,4 +164,34 @@ class ChatManager {
             this.uiManager.hideLoading();
         }
     }
+    
+
+    /**
+     * Fetch and display citations for a specific message
+     * @param {string} message - The message to get citations for
+     */
+    async fetchAndDisplayCitations(message) {
+        if (!message || !this.isProcessed) {
+            return;
+        }
+        
+        this.uiManager.showLoading('Fetching sources...');
+        
+        try {
+            // Fetch citations from API
+            const response = await ApiService.fetchCitations(message);
+            
+            if (response.status === 'success') {
+                // Create a modal to display the citations
+                this.uiManager.showCitationsModal(message, response.citations);
+            } else {
+                this.uiManager.addSystemMessage('Error: Failed to fetch citations. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error fetching citations:', error);
+            this.uiManager.addSystemMessage('Error: An unexpected error occurred while fetching citations.');
+        } finally {
+            this.uiManager.hideLoading();
+        }
+    }
 }

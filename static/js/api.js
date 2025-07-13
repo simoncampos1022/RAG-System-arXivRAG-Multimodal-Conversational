@@ -191,4 +191,29 @@ class ApiService {
             throw error;
         }
     }
+
+
+    /**
+     * Fetch citations for a specific query
+     * @param   {string} message - The query message
+     * @returns {Promise}        - The API response with citations
+     */
+    static async fetchCitations(message) {
+        try {
+            const response = await fetch('/api/fetch-citations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: message
+                })
+            });
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching citations:', error);
+            throw error;
+        }
+    }
 }

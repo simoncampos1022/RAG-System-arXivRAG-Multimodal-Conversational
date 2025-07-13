@@ -3,11 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A multi-modal RAG application for arXiv CS papers that allows searching and intelligent conversations">
     <title>arXivCSRAG - Multi-Modal RAG Application</title>
-    <link rel="stylesheet" href="/static/css/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="/static/css/modern-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%234361ee' d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z'/%3E%3C/svg%3E">
 </head>
 <body>
     <div class="app-container">
@@ -23,82 +28,100 @@
         </header>
 
         <main>
-            <div class="row">
+            <div class="content-row">
                 <!-- Left Panel: Search and Results -->
-                <div class="col-lg-5 left-panel">
-                    <div class="search-panel">
-                        <h2>Search arXiv Papers</h2>
-
-                        <div class="filters-grid">
-                            <!-- Subject Tags Filter -->
-                            <div class="filter-group">
-                                <label>Subject Tags</label>
-                                <div class="subject-tags-container">
-                                    <select id="subject-tags-select" class="form-select" multiple>
-                                        <!-- Will be populated via JavaScript -->
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <!-- Date Range Filter -->
-                            <div class="filter-group">
-                                <label>Date Range</label>
-                                <div class="date-range-inputs">
-                                    <input type="date" id="start-date" class="form-control" placeholder="Start Date">
-                                    <input type="date" id="end-date" class="form-control" placeholder="End Date">
-                                </div>
-                            </div>
-
-                            <!-- Search Query -->
-                            <div class="filter-group">
-                                <label>Search Query</label>
-                                <input type="text" id="search-query" class="form-control" placeholder="Enter search terms...">
-                            </div>
-
-                            <!-- Max Results Filter -->
-                            <div class="filter-group">
-                                <label>Max Results</label>
-                                <input type="number" id="max-results" class="form-control" value="10" min="1" max="100">
-                            </div>
-                        </div>
-                                                
-                        <!-- Search Button -->
-                        <button id="search-button" class="btn btn-primary search-btn">
+                <div class="left-panel panel">
+                    <div class="nav-tabs" role="tablist">
+                        <button class="nav-link active" id="search-tab" data-tab="search-panel" role="tab" aria-selected="true">
                             <i class="bi bi-search"></i> Search
                         </button>
-                        
-                        <!-- Alternative: Upload PDF -->
-                        <div class="upload-section">
-                            <p>Or upload a paper directly:</p>
-                            <div class="upload-container">
-                                <input type="file" id="pdf-upload" accept=".pdf" class="form-control">
-                                <button id="upload-button" class="btn btn-secondary">
-                                    <i class="bi bi-upload"></i> Upload
+                        <button class="nav-link" id="results-tab" data-tab="results-panel" role="tab" aria-selected="false">
+                            <i class="bi bi-list-ul"></i> Results
+                        </button>
+                    </div>
+
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="search-panel" role="tabpanel">
+                            <!-- Search Panel Section -->
+                            <div class="search-section">
+                                <!-- <h2>Search arXiv Papers</h2> -->
+
+                                <div class="filters-grid">
+                                    <!-- Subject Tags Filter -->
+                                    <div class="filter-group">
+                                        <div class="tooltip-container">
+                                            <label for="subject-tags-select">Subject Areas</label>
+                                            <i class="bi bi-info-circle tooltip-icon">
+                                                <span class="tooltip-text">Hold Ctrl (or Cmd on Mac) and click to select multiple tags.</span>
+                                            </i>
+                                        </div>
+                                        <select id="subject-tags-select" class="form-control form-select" multiple>
+                                            <!-- Will be populated via JavaScript -->
+                                        </select>
+                                    </div>
+
+                                    <!-- Date Range Filter -->
+                                    <div class="filter-group">
+                                        <label>Publication Date Range</label>
+                                        <div class="date-range-inputs">
+                                            <input type="date" id="start-date" class="form-control" placeholder="From">
+                                            <input type="date" id="end-date" class="form-control" placeholder="To">
+                                        </div>
+                                    </div>
+
+                                    <!-- Search Query -->
+                                    <div class="filter-group">
+                                        <label for="search-query">Search Query</label>
+                                        <input type="text" id="search-query" class="form-control" placeholder="Enter keywords, phrases...">
+                                    </div>
+
+                                    <!-- Max Results Filter -->
+                                    <div class="filter-group">
+                                        <label for="max-results">Max Results</label>
+                                        <input type="number" id="max-results" class="form-control" value="10" min="1" max="100">
+                                    </div>
+
+                                </div>
+                                                        
+                                <!-- Search Button -->
+                                <button id="search-button" class="btn btn-primary search-btn">
+                                    <i class="bi bi-search"></i> Search Papers
                                 </button>
+                                
+                                <!-- Alternative: Upload PDF -->
+                                <div class="upload-section">
+                                    <p>Or upload a paper directly:</p>
+                                    <div class="upload-container">
+                                        <input type="file" id="pdf-upload" accept=".pdf" class="form-control">
+                                        <button id="upload-button" class="btn btn-secondary">
+                                            <i class="bi bi-upload"></i> Upload PDF
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Search Results Section -->
-                    <div class="results-panel">
-                        <h3>Search Results</h3>
-                        <div id="results-container">
-                            <!-- Will be populated via JavaScript -->
-                            <p class="no-results">No results to display. Search for papers above.</p>
+
+                        <div class="tab-pane" id="results-panel" role="tabpanel">
+                            <!-- Search Results Section -->
+                            <div class="results-section">
+                                <!-- <h2>Search Results</h2> -->
+                                <div id="results-container" class="results-container">
+                                    <!-- Will be populated via JavaScript -->
+                                    <p class="no-results">No results to display. Search for papers above.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Right Panel: Chat Interface -->
-                <div class="col-lg-7 right-panel">
+                <div class="right-panel panel">
                     <div class="chat-panel">
                         <div class="chat-header">
-                            <h2>Chat with Paper</h2>
-                            <div class="chat-controls">
-                                <button id="reset-chat-btn" class="btn btn-outline-secondary" disabled>
-                                    <i class="bi bi-arrow-repeat"></i> Reset Chat
-                                </button>
-                            </div>
+                            <h2><i class="bi bi-chat-left-text"></i> Chat with Paper</h2>
+                            <button id="reset-chat-btn" class="btn btn-outline" disabled>
+                                <i class="bi bi-arrow-repeat"></i> Reset Chat
+                            </button>
                         </div>
                         
                         <!-- Chat Messages Container -->
@@ -119,14 +142,24 @@
                 </div>
             </div>
         </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <p>© 2025 arXivCSRAG</p>
+                <a href="https://github.com/YuITC/arXivRAG-Multimodal-RAG-Chatbot-Application" target="_blank" class="github-link">
+                    <i class="bi bi-github"></i> GitHub Repository
+                </a>
+            </div>
+        </footer>
     </div>
 
     <!-- API Keys Configuration Modal -->
     <div id="api-keys-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Configure API Keys</h3>
-                <span class="close-modal">&times;</span>
+                <h3><i class="bi bi-key"></i> Configure API Keys</h3>
+                <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
                 <p>Enter your API keys to use the application:</p>
@@ -153,7 +186,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="paper-title">Paper Title</h3>
-                <span class="close-modal">&times;</span>
+                <button class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="paper-metadata">
@@ -169,13 +202,13 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="open-arxiv-btn" class="btn btn-secondary">
+                <button id="open-arxiv-btn" class="btn btn-outline">
                     <i class="bi bi-box-arrow-up-right"></i> Open arXiv Page
                 </button>
-                <button id="view-pdf-btn" class="btn btn-secondary">
+                <button id="view-pdf-btn" class="btn btn-outline">
                     <i class="bi bi-file-earmark-pdf"></i> View PDF
                 </button>
-                <button id="download-pdf-btn" class="btn btn-secondary">
+                <button id="download-pdf-btn" class="btn btn-outline">
                     <i class="bi bi-download"></i> Download PDF
                 </button>
                 <button id="chat-with-paper-btn" class="btn btn-primary">
@@ -186,11 +219,18 @@
     </div>
 
     <!-- Loading Overlay -->
-    <div id="loading-overlay" class="loading-overlay">
+    <!-- <div id="loading-overlay" class="loading-overlay">
         <div class="spinner-container">
-            <div class="spinner-border text-light" role="status">
+            <div class="spinner-border" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
+            <p id="loading-message">Processing...</p>
+        </div>
+    </div> -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner-container">
+            <div class="spinner-border"></div>
+            <p class="spinner-text">Loading...</p>
             <p id="loading-message">Processing...</p>
         </div>
     </div>
@@ -200,5 +240,55 @@
     <script src="/static/js/ui.js"></script>
     <script src="/static/js/chat.js"></script>
     <script src="/static/js/main.js"></script>
+    
+    <!-- Custom Tab JS -->
+    <script>
+        // Custom tab functionality (without Bootstrap dependency)
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabLinks = document.querySelectorAll('.nav-link');
+            
+            tabLinks.forEach(tabLink => {
+                tabLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all tabs and panes
+                    document.querySelectorAll('.nav-link').forEach(tab => {
+                        tab.classList.remove('active');
+                        tab.setAttribute('aria-selected', 'false');
+                    });
+                    
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked tab and its pane
+                    this.classList.add('active');
+                    this.setAttribute('aria-selected', 'true');
+                    
+                    const targetId = this.getAttribute('data-tab');
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+        });
+    </script>
+    
+    <!-- Citations Modal -->
+    <div id="citations-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Sources for Query</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="citation-query" class="citation-query"></p>
+                <div id="citations-container" class="citations-container">
+                    <!-- Citations will be rendered here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-btn">Close</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
