@@ -81,8 +81,30 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Upload paper functionality
     const uploadButton = document.getElementById('upload-button');
+    const fileInput = document.getElementById('pdf-upload');
+    const fileNameDisplay = document.querySelector('.file-name-display');
+    const selectedFileName = document.getElementById('selected-file-name');
+    
+    // Handle file selection display
+    fileInput.addEventListener('change', (event) => {
+        const file = fileInput.files[0];
+        console.log('File selected:', file ? file.name : 'No file');
+        
+        if (file) {
+            selectedFileName.textContent = file.name;
+            fileNameDisplay.classList.add('active');
+            uploadButton.classList.add('file-selected');
+            uploadButton.innerHTML = '<i class="bi bi-upload"></i> Upload "' + file.name.substring(0, 15) + (file.name.length > 15 ? '...' : '') + '"';
+            console.log('File name display should be visible now');
+        } else {
+            selectedFileName.textContent = 'No file selected';
+            fileNameDisplay.classList.remove('active');
+            uploadButton.classList.remove('file-selected');
+            uploadButton.innerHTML = '<i class="bi bi-upload"></i> Upload PDF';
+        }
+    });
+    
     uploadButton.addEventListener('click', async () => {
-        const fileInput = document.getElementById('pdf-upload');
         const file = fileInput.files[0];
         
         if (!file) {

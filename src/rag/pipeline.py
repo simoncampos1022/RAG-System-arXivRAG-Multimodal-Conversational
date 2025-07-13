@@ -90,7 +90,7 @@ class RAGPipeline:
         """
         return (
             {
-                'context' : itemgetter('question') | self.retriever | RunnableLambda(self.parse_docs),
+                'context' : itemgetter('question') | RunnableLambda(lambda q: f"query: {q}") | self.retriever | RunnableLambda(self.parse_docs),
                 'question': itemgetter('question')
             }
             | RunnablePassthrough().assign(
