@@ -20,7 +20,7 @@
         <header>
             <div class="header-content">
                 <h1>arXivCSRAG</h1>
-                <p>Multi-Modal RAG Application</p>
+                <!-- <p>Multi-Modal RAG Application</p> -->
             </div>
             <button id="configure-api-keys-btn" class="btn btn-primary">
                 <i class="bi bi-key-fill"></i> Configure API Keys
@@ -85,15 +85,25 @@
                                                         
                                 <!-- Search Button -->
                                 <button id="search-button" class="btn btn-primary search-btn">
-                                    <i class="bi bi-search"></i> Search Papers
+                                    <i class="bi bi-search"></i> Search for arXiv Papers
                                 </button>
                                 
                                 <!-- Alternative: Upload PDF -->
                                 <div class="upload-section">
-                                    <p>Or upload a paper directly:</p>
+                                    <p>Or upload any PDF file:  </p>
                                     <div class="upload-container">
-                                        <input type="file" id="pdf-upload" accept=".pdf" class="form-control">
-                                        <button id="upload-button" class="btn btn-secondary">
+                                        <div class="file-input-wrapper">
+                                            <label class="file-input-button" for="pdf-upload">
+                                                <i class="bi bi-file-earmark-pdf"></i>
+                                                <span>Choose PDF File</span>
+                                            </label>
+                                            <input type="file" id="pdf-upload" accept=".pdf">
+                                        </div>
+                                        <div class="file-name-display">
+                                            <i class="bi bi-check-circle"></i>
+                                            <span id="selected-file-name">No file selected</span>
+                                        </div>
+                                        <button id="upload-button" class="btn btn-primary">
                                             <i class="bi bi-upload"></i> Upload PDF
                                         </button>
                                     </div>

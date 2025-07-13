@@ -96,7 +96,7 @@ class VectorStore:
         
         summaries = [
             Document(
-                page_content = f"Represent this passage for retrieval: {summary}", # Change this to suit with model requirements if use a different model
+                page_content = f"passage: {summary}", # Change this to suit with model requirements if use a different model
                 metadata     = {self.id_key: i}
             )
             for i, summary in zip(ids, data_summaries)

@@ -19,11 +19,9 @@ def extract_from_pdf(pdf_path: Union[str, Path]) -> List[Any]:
         List[Any]: List of extracted elements (text, tables, images)
     """
     pdf_path = Path(pdf_path) if isinstance(pdf_path, str) else pdf_path
-    
     if not pdf_path.exists():
         raise FileNotFoundError(f"PDF file not found: {pdf_path}")
-    
-    # Extract content from PDF
+
     chunks = partition_pdf(filename=pdf_path, **PDF_EXTRACTION_CONFIG)
     return chunks
 

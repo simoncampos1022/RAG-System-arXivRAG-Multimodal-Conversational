@@ -34,7 +34,8 @@ PDF_EXTRACTION_CONFIG = {
 
 # LLM & Embedding model Configuration
 MODEL_NAME      = 'gemini-2.5-flash-lite-preview-06-17'
-EMBEDDING_MODEL = 'BAAI/bge-base-en-v1.5'
+# EMBEDDING_MODEL = 'BAAI/bge-base-en-v1.5'
+EMBEDDING_MODEL = 'BAAI/bge-m3' # Multi-lingual BGE model
 DEVICE          = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
