@@ -105,7 +105,8 @@ class ChatManager {
                 this.uiManager.enableChat();
                 this.uiManager.addSystemMessage(
                     `Extracted ${response.stats.texts} text chunks, ${response.stats.tables} tables, and ${response.stats.images} images.<br>
-                    Paper processed successfully! You can now ask question about the paper.<br>`
+                    Paper processed successfully! You can now ask questions about the paper.<br>
+                    <span class="memory-info">🧠 The chatbot now has conversational memory and will remember your previous questions.</span>`
                 );
             } else {
                 this.uiManager.addSystemMessage('Error: Failed to process paper. Please try again.');
@@ -123,7 +124,7 @@ class ChatManager {
      * Reset the chat session
      */
     async resetChat() {
-        this.uiManager.showLoading('Resetting chat...');
+        this.uiManager.showLoading('Resetting chat and conversation memory...');
         
         try {
             await ApiService.resetChat();
@@ -131,7 +132,7 @@ class ChatManager {
             this.currentPaperPath = null;
             this.uiManager.clearChat();
             this.uiManager.disableChat();
-            this.uiManager.addSystemMessage('Select a paper from the search results or upload a PDF to start chatting.');
+            this.uiManager.addSystemMessage('Select a paper from the search results or upload a PDF to start chatting. Conversation memory has been reset.');
         } catch (error) {
             console.error('Error resetting chat:', error);
             this.uiManager.addSystemMessage('Error: Failed to reset chat. Please try again.');

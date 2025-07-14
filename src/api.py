@@ -294,6 +294,7 @@ async def reset_chat():
         logger.info("Resetting chat and vector store")
         vector_store.reset()
         rag_pipeline.retriever = vector_store.retriever
+        rag_pipeline.reset_memory()
         return {'status': 'success', 'message': 'Chat reset successfully'}
     
     except Exception as e:
