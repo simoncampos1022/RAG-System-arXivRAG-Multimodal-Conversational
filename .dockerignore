@@ -1,0 +1,53 @@
+# Exclude files and directories from Docker build
+# Version control
+.git
+.gitignore
+.github
+.gitattributes
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environment
+venv/
+ENV/
+env/
+
+# IDE artifacts
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Documentation
+docs/
+*.md
+LICENSE
+
+# Misc
+.DS_Store
+**/*.log
+**/.env*
+
+# Others
+*.ipynb
+assets/
