@@ -10,6 +10,7 @@ from langchain_core.messages           import SystemMessage, HumanMessage
 from langchain_core.runnables          import RunnablePassthrough, RunnableLambda
 from langchain_core.output_parsers     import StrOutputParser
 from langchain.retrievers.multi_vector import MultiVectorRetriever
+from langchain.memory.summary          import ConversationSummaryMemory
 
 from src.config             import MODEL_NAME
 from src.processors.prompts import RAG_SYSTEM_MESSAGE
@@ -29,6 +30,13 @@ class RAGPipeline:
         self.retriever = retriever
         self.llm       = ChatGoogleGenerativeAI(model=model_name)
         self.rag_chain = self._create_rag_chain()
+        self.memory    = ConversationSummaryMemory(
+            llm=self.llm,
+            memory_key="chat_history",
+            return_messages=True,
+            input_key="question",
+            output_key="response"
+        )
         
         
     def parse_docs(self, docs: List[Any]) -> Dict[str, List[Any]]:
@@ -56,15 +64,20 @@ class RAGPipeline:
         Build the prompt template for the RAG query.
         
         Args:
-            kwargs (Dict[str, Any]): Dictionary with keys 'context' and 'question'
+            kwargs (Dict[str, Any]): Dictionary with keys 'context', 'question', and 'chat_history'
             
         Returns:
             ChatPromptTemplate: The chat prompt template
         """
-        context  = kwargs['context']
-        question = kwargs['question']
+        context      = kwargs['context']
+        question     = kwargs['question']
+        chat_history = kwargs.get('chat_history', [])
     
         messages = [SystemMessage(content=RAG_SYSTEM_MESSAGE)]
+        
+        # Add conversation history if available
+        if chat_history:
+            messages.extend(chat_history)
         
         for txt in context['texts'] : messages.append(HumanMessage(content=[{'type': 'text', 'text': f"[TEXT]:\n{txt}"}]))
         for tbl in context['tables']: messages.append(HumanMessage(content=[{'type': 'text', 'text': f"[TABLE]:\n```html\n{tbl}\n```"}]))
@@ -76,7 +89,7 @@ class RAGPipeline:
             
         messages.append(
             HumanMessage(content=[{'type': 'text',
-                                   'text': f"Based on the above contexts, answer the question: {question}"}])
+                                   'text': f"Based on the above contexts and our conversation history, answer the question: {question}"}])
         )
         return ChatPromptTemplate.from_messages(messages)
     
@@ -90,8 +103,9 @@ class RAGPipeline:
         """
         return (
             {
-                'context' : itemgetter('question') | RunnableLambda(lambda q: f"query: {q}") | self.retriever | RunnableLambda(self.parse_docs),
-                'question': itemgetter('question')
+                'context'     : itemgetter('question') | RunnableLambda(lambda q: f"query: {q}") | self.retriever | RunnableLambda(self.parse_docs),
+                'question'    : itemgetter('question'),
+                'chat_history': itemgetter('chat_history')
             }
             | RunnablePassthrough().assign(
                 response=(
@@ -113,4 +127,23 @@ class RAGPipeline:
         Returns:
             Dict[str, Any]: Dictionary with keys 'question', 'context', and 'response'
         """
-        return self.rag_chain.invoke({'question': question})
+        # Get chat history from memory
+        chat_history = self.memory.load_memory_variables({})
+        
+        # Execute the query with the chat history
+        result = self.rag_chain.invoke({
+            'question': question, 
+            'chat_history': chat_history.get('chat_history', [])
+        })
+        
+        # Update memory with the new interaction
+        self.memory.save_context(
+            {"question": question},
+            {"response": result['response']}
+        )
+        
+        return result
+        
+    def reset_memory(self):
+        """Reset the conversation memory."""
+        self.memory.clear()
