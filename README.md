@@ -139,13 +139,3 @@ arXivRAG-Multimodal-Conversational-RAG-System/
 ├── .env                   # Environment variables (not committed)
 └── requirements.txt       # Python dependencies
 ```
-
-
-## 📜 License
-This project is licensed under the MIT License – feel free to modify and distribute it as needed.
-
-
-## 📬 Contact
-If you find this project useful, consider ⭐️ starring the repository or contributing to further improvements!
-
-For any questions or collaboration opportunities, feel free to reach out: tainguyenphu2502@gmail.com
